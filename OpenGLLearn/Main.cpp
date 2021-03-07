@@ -4,6 +4,8 @@
 
 #include <iostream>
 
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+
 int main()
 {
 	//glfw init
@@ -25,6 +27,8 @@ int main()
 	}
 	glfwMakeContextCurrent(window);
 
+	glfwSetKeyCallback(window, key_callback);
+
 	//glew init
 	glewExperimental = GL_TRUE;
 	if (glewInit() != GLEW_OK)
@@ -37,14 +41,25 @@ int main()
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
-
+	
+	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 	//main cycle
 	while (!glfwWindowShouldClose(window))
 	{
 		glfwPollEvents();
+
+		glClear(GL_COLOR_BUFFER_BIT);
+
 		glfwSwapBuffers(window);
 	}
 
 	glfwTerminate();
 	return 0;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+		glfwSetWindowShouldClose(window, GL_TRUE);
+	}
 }
