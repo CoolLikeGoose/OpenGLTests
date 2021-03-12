@@ -158,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="FragShader.frag" />
+    <None Include="FragShaderYellow.frag" />
     <None Include="VertShader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

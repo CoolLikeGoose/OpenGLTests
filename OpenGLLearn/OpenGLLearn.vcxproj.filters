@@ -25,5 +25,6 @@
   <ItemGroup>
     <None Include="VertShader.vert" />
     <None Include="FragShader.frag" />
+    <None Include="FragShaderYellow.frag" />
   </ItemGroup>
 </Project>
