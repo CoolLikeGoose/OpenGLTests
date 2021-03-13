@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "ShaderTool.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -13,21 +14,22 @@ void CheckProgramStatus(GLuint shaderProg);
 const GLuint WIDTH = 800, HEIGHT = 600;
 
 // Shaders
-const GLchar* vertexShaderSource = 
+const GLchar* vertexShaderSource3 = 
 "#version 330 core\n"
 "layout (location = 0) in vec3 position;\n"
 "void main()\n"
 "{\n"
 "gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
 "}\0";
-const GLchar* fragmentShaderSource =
+
+const GLchar* fragmentShaderSource3 =
 "#version 330 core\n"
 "out vec4 color;\n"
 "void main()\n"
 "{\n"
 "color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
-const GLchar* fragmentShader2Source =
+const GLchar* fragmentShader2Source3 =
 "#version 330 core\n"
 "out vec4 color;\n"
 "void main()\n"
@@ -66,22 +68,26 @@ int main()
 
     // Build, compile shader program
 
+    const char* vertexShaderSource = LoadShaderFromFile("VertShader.vert");
+    const char* fragmentShaderSource = LoadShaderFromFile("FragShader.frag");
+    const char* fragmentYellowShaderSource = LoadShaderFromFile("FragShaderYellow.frag");
+
     // Vertex shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    glShaderSource(vertexShader, 1, &vertexShaderSource3, NULL);
     glCompileShader(vertexShader);
 
     CheckShaderStatus(vertexShader);
 
     // Fragment shader
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource3, NULL);
     glCompileShader(fragmentShader);
 
     CheckShaderStatus(fragmentShader);
 
     GLuint fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader2, 1, &fragmentShader2Source, NULL);
+    glShaderSource(fragmentShader2, 1, &fragmentShader2Source3, NULL);
     glCompileShader(fragmentShader2);
 
     CheckShaderStatus(fragmentShader2);
@@ -184,28 +190,4 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
-}
-
-void CheckShaderStatus(GLuint shader)
-{
-    GLint success;
-    GLchar infoLog[512];
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-    if (!success)
-    {
-        glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-}
-
-void CheckProgramStatus(GLuint shaderProg)
-{
-    GLint success;
-    GLchar infoLog[512];
-    glGetProgramiv(shaderProg, GL_LINK_STATUS, &success);
-    if (!success) 
-    {
-        glGetProgramInfoLog(shaderProg, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
-    }
 }

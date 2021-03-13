@@ -21,10 +21,18 @@
     <ClCompile Include="Additional.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="ShaderTool.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="VertShader.vert" />
     <None Include="FragShader.frag" />
     <None Include="FragShaderYellow.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ShaderTool.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

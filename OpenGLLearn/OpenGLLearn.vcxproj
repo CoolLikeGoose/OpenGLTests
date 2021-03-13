@@ -155,11 +155,15 @@
   <ItemGroup>
     <ClCompile Include="Additional.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="ShaderTool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="FragShader.frag" />
     <None Include="FragShaderYellow.frag" />
     <None Include="VertShader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ShaderTool.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
