@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "ShaderTool.h"
+#include "Shader.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
@@ -43,6 +44,7 @@ int main()
 
 
     // Build, compile shader program
+    /////////////////////////////////////////////PLS delete this//////////////////////////////////////
 
     string vertexShaderSourceStr = LoadShaderFromFile("VertShader.vert");
     const GLchar* vertexShaderSource = vertexShaderSourceStr.c_str();
@@ -87,6 +89,10 @@ int main()
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
     //glDeleteShader(fragmentShader2);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    Shader testShader("VertShader.vert", "FragShader.frag");
 
     GLfloat vertices[] = {
          // Positions        // Colors
@@ -154,7 +160,8 @@ int main()
         // Render
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glUseProgram(shaderProgram);
+        //glUseProgram(shaderProgram);
+        testShader.Use();
 
         GLfloat timeValue = glfwGetTime();
         GLfloat blueValue = (sin(timeValue) / 2) + 0.5;
