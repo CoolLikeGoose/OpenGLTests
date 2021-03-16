@@ -1,24 +1,25 @@
 #include "ShaderTool.h"
 
-const char* LoadShaderFromFile(string fileName)
+// TODO: delete this or fix
+const GLchar* GetShader(string fileName)
 {
-    const char* out;
+    string shaderSourceRaw = LoadShaderFromFile(fileName);
+    const char* shaderSource = shaderSourceRaw.c_str();
 
-    ifstream ifs(fileName);
+    return shaderSource;
+}
 
-    if (!ifs.is_open())
-        cout << "FUCK::FUCK::FUCK::FUCK::FUCK" << endl;
-
-    string fileStr;
-
-    istreambuf_iterator<char> inputIt(ifs), emptyInputIt;
-    back_insert_iterator<string> stringInsert(fileStr);
-
-    copy(inputIt, emptyInputIt, stringInsert);
-
-    out = fileStr.c_str();
-
-    return out;
+string LoadShaderFromFile(string fileName)
+{
+    ifstream file(fileName, ios::in);
+    string content;
+    if (file.good())
+    {
+        stringstream buffer;
+        buffer << file.rdbuf();
+        content = buffer.str();
+    }
+    return content;
 }
 
 void CheckShaderStatus(GLuint shader)

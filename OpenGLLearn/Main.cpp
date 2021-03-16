@@ -13,30 +13,6 @@ void CheckProgramStatus(GLuint shaderProg);
 
 const GLuint WIDTH = 800, HEIGHT = 600;
 
-// Shaders
-const GLchar* vertexShaderSource3 = 
-"#version 330 core\n"
-"layout (location = 0) in vec3 position;\n"
-"void main()\n"
-"{\n"
-"gl_Position = vec4(position.x, position.y, position.z, 1.0);\n"
-"}\0";
-
-const GLchar* fragmentShaderSource3 =
-"#version 330 core\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"color = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0";
-const GLchar* fragmentShader2Source3 =
-"#version 330 core\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"    color = vec4(1.0f, 1.0f, 0.0f, 1.0f);\n"
-"}\n\0";
-
 int main()
 {
     std::cout << "Starting GLFW context, OpenGL 3.3" << std::endl;
@@ -68,26 +44,29 @@ int main()
 
     // Build, compile shader program
 
-    const char* vertexShaderSource = LoadShaderFromFile("VertShader.vert");
-    const char* fragmentShaderSource = LoadShaderFromFile("FragShader.frag");
-    const char* fragmentYellowShaderSource = LoadShaderFromFile("FragShaderYellow.frag");
+    string vertexShaderSourceStr = LoadShaderFromFile("VertShader.vert");
+    const GLchar* vertexShaderSource = vertexShaderSourceStr.c_str();
+    string fragmentShaderSourceStr = LoadShaderFromFile("FragShader.frag");
+    const GLchar* fragmentShaderSource = fragmentShaderSourceStr.c_str();
+    string fragmentYellowShaderSourceStr = LoadShaderFromFile("FragShaderYellow.frag");
+    const GLchar* fragmentYellowShaderSource = fragmentYellowShaderSourceStr.c_str();
 
     // Vertex shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource3, NULL);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
     glCompileShader(vertexShader);
 
     CheckShaderStatus(vertexShader);
 
     // Fragment shader
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource3, NULL);
+    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
     glCompileShader(fragmentShader);
 
     CheckShaderStatus(fragmentShader);
 
     GLuint fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader2, 1, &fragmentShader2Source3, NULL);
+    glShaderSource(fragmentShader2, 1, &fragmentYellowShaderSource, NULL);
     glCompileShader(fragmentShader2);
 
     CheckShaderStatus(fragmentShader2);
