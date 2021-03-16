@@ -42,55 +42,7 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
 
-
-    // Build, compile shader program
-    /////////////////////////////////////////////PLS delete this//////////////////////////////////////
-
-    string vertexShaderSourceStr = LoadShaderFromFile("VertShader.vert");
-    const GLchar* vertexShaderSource = vertexShaderSourceStr.c_str();
-    string fragmentShaderSourceStr = LoadShaderFromFile("FragShader.frag");
-    const GLchar* fragmentShaderSource = fragmentShaderSourceStr.c_str();
-    /*string fragmentYellowShaderSourceStr = LoadShaderFromFile("FragShaderYellow.frag");
-    const GLchar* fragmentYellowShaderSource = fragmentYellowShaderSourceStr.c_str();*/
-
-    // Vertex shader
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    CheckShaderStatus(vertexShader);
-
-    // Fragment shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    CheckShaderStatus(fragmentShader);
-
-    /*GLuint fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader2, 1, &fragmentYellowShaderSource, NULL);
-    glCompileShader(fragmentShader2);
-
-    CheckShaderStatus(fragmentShader2);*/
-
-    // Link shaders
-    GLuint shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    CheckProgramStatus(shaderProgram);
-
-    /*GLuint shaderProgram2 = glCreateProgram();
-    glAttachShader(shaderProgram2, vertexShader);
-    glAttachShader(shaderProgram2, fragmentShader2);
-    glLinkProgram(shaderProgram2);*/
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
-    //glDeleteShader(fragmentShader2);
-
-    ///////////////////////////////////////////////////////////////////////////////////////////
+    //////// < Window Init end > ////////
 
     Shader testShader("VertShader.vert", "FragShader.frag");
 
@@ -101,20 +53,10 @@ int main()
          0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // Up
     };
 
-    /*GLfloat secondTriangle[] = {
-         0.0f, -0.5f, 0.0f, 
-         0.9f, -0.5f, 0.0f,  
-         0.45f, 0.5f, 0.0f
-    };*/
-
     //VAO, VBO init
     GLuint VBO, VAO;
     glGenBuffers(1, &VBO);
     glGenVertexArrays(1, &VAO);
-
-    //GLuint VBOs[2], VAOs[2];
-    //glGenVertexArrays(2, VAOs);
-    //glGenBuffers(2, VBOs);
 
     //first
     glBindVertexArray(VAO);
@@ -132,24 +74,6 @@ int main()
 
     glBindVertexArray(0);
     
-    //Second
-    /*glBindVertexArray(VAOs[1]);
-  
-    glBindBuffer(GL_ARRAY_BUFFER, VBOs[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(secondTriangle), secondTriangle, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);*/
-
-    // Wireframe mode
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    // Normal mode
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-    //Change in main loop
-    
 
     // Main loop
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -166,15 +90,11 @@ int main()
         GLfloat timeValue = glfwGetTime();
         GLfloat blueValue = (sin(timeValue) / 2) + 0.5;
         GLfloat redValue = 1-((sin(timeValue) / 2) + 0.5);
-        GLint vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
+        GLint vertexColorLocation = glGetUniformLocation(testShader.Program, "ourColor");
         glUniform4f(vertexColorLocation, redValue, 0.0f, blueValue, 1.0f);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
-
-        /*glUseProgram(shaderProgram2);
-        glBindVertexArray(VAOs[1]);
-        glDrawArrays(GL_TRIANGLES, 0, 3);*/
 
         glBindVertexArray(0);
 
