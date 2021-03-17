@@ -45,9 +45,13 @@ int main()
 
     GLfloat vertices[] = {
          // Positions        // Colors
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,   // Down right
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,   // Down left
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f    // Up
+         0.0f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f,   // Down right
+        -1.0f,  0.0f, 0.0f,  0.0f, 1.0f, 0.0f,   // Down left
+        -0.5f, -1.0f, 0.0f,  0.0f, 0.0f, 1.0f,   // Up
+
+         0.0f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f,   // Down right
+        -1.0f,  0.0f, 0.0f,  0.0f, 1.0f, 0.0f,   // Down left
+        -0.5f,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f    // Up
     };
 
     //VAO, VBO init
@@ -83,8 +87,15 @@ int main()
 
         testShader.Use();
 
+        GLfloat timeValue = glfwGetTime();
+        GLfloat offset = (sin(timeValue) / 2) + 0.5;
+        GLint vertexColorLocation = glGetUniformLocation(testShader.Program, "xOffset");
+        glUniform1f(vertexColorLocation, offset);
+
+        cout << offset << endl;
+
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLES, 0, 6);
 
         glBindVertexArray(0);
 
