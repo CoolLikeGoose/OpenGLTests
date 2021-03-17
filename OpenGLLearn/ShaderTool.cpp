@@ -1,28 +1,6 @@
 #include "ShaderTool.h"
 
-// TODO: delete this or fix
-const GLchar* GetShader(string fileName)
-{
-    string shaderSourceRaw = LoadShaderFromFile(fileName);
-    const char* shaderSource = shaderSourceRaw.c_str();
-
-    return shaderSource;
-}
-
-string LoadShaderFromFile(string fileName)
-{
-    ifstream file(fileName, ios::in);
-    string content;
-    if (file.good())
-    {
-        stringstream buffer;
-        buffer << file.rdbuf();
-        content = buffer.str();
-    }
-    return content;
-}
-
-void CheckShaderStatus(GLuint shader)
+void CheckShaderStatus(GLuint shader, std::string type)
 {
     GLint success;
     GLchar infoLog[512];
@@ -30,7 +8,7 @@ void CheckShaderStatus(GLuint shader)
     if (!success)
     {
         glGetShaderInfoLog(shader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+        std::cout << "ERROR::SHADER::" << type << "::COMPILATION_FAILED\n" << infoLog << std::endl;
     }
 }
 

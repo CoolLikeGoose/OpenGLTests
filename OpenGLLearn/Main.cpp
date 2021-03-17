@@ -9,9 +9,6 @@
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
-void CheckShaderStatus(GLuint shader);
-void CheckProgramStatus(GLuint shaderProg);
-
 const GLuint WIDTH = 800, HEIGHT = 600;
 
 int main()
@@ -84,14 +81,7 @@ int main()
         // Render
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //glUseProgram(shaderProgram);
         testShader.Use();
-
-        GLfloat timeValue = glfwGetTime();
-        GLfloat blueValue = (sin(timeValue) / 2) + 0.5;
-        GLfloat redValue = 1-((sin(timeValue) / 2) + 0.5);
-        GLint vertexColorLocation = glGetUniformLocation(testShader.Program, "ourColor");
-        glUniform4f(vertexColorLocation, redValue, 0.0f, blueValue, 1.0f);
 
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
