@@ -1,8 +1,9 @@
 #include <iostream>
-
+#define STB_IMAGE_IMPLEMENTATION
 //#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <STB/stb_image.h>
 
 #include "ShaderTool.h"
 #include "Shader.h"
@@ -41,23 +42,40 @@ int main()
 
     //////// < Window Init end > ////////
 
+    int widthTex, heightTex, a;
+    unsigned char* image = stbi_load("Images/container.jpg", &widthTex, &heightTex, &a, STBI_rgb);
+
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthTex, heightTex, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(image);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     Shader testShader("VertShader.vert", "FragShader.frag");
 
     GLfloat vertices[] = {
-         // Positions        // Colors
-         0.0f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f,   // Down right
-        -1.0f,  0.0f, 0.0f,  0.0f, 1.0f, 0.0f,   // Down left
-        -0.5f, -1.0f, 0.0f,  0.0f, 0.0f, 1.0f,   // Up
+        // Pos               // Color            // Tex coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Up right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Down right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Down left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Up left
+    };
 
-         0.0f,  0.0f, 0.0f,  1.0f, 0.0f, 0.0f,   // Down right
-        -1.0f,  0.0f, 0.0f,  0.0f, 1.0f, 0.0f,   // Down left
-        -0.5f,  1.0f, 0.0f,  0.0f, 0.0f, 1.0f    // Up
+    GLuint indices[] = {
+        0, 1, 3,
+        1, 2, 3
     };
 
     //VAO, VBO init
-    GLuint VBO, VAO;
-    glGenBuffers(1, &VBO);
+    GLuint VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
     //first
     glBindVertexArray(VAO);
@@ -65,13 +83,20 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     //coords
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
     
     //colors
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
+
+    //tex coords
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
     
@@ -87,15 +112,9 @@ int main()
 
         testShader.Use();
 
-        GLfloat timeValue = glfwGetTime();
-        GLfloat offset = (sin(timeValue) / 2) + 0.5;
-        GLint vertexColorLocation = glGetUniformLocation(testShader.Program, "xOffset");
-        glUniform1f(vertexColorLocation, offset);
-
-        cout << offset << endl;
-
+        glBindTexture(GL_TEXTURE_2D, texture);
         glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
 
