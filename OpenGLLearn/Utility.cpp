@@ -1,4 +1,4 @@
-#include "ShaderTool.h"
+#include "Utility.h"
 
 void CheckShaderStatus(GLuint shader, std::string type)
 {

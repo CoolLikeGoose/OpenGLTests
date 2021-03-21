@@ -1,11 +1,13 @@
 #include <iostream>
+
 #define STB_IMAGE_IMPLEMENTATION
 //#define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <STB/stb_image.h>
 
-#include "ShaderTool.h"
+
+#include "Utility.h"
 #include "Shader.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -41,20 +43,6 @@ int main()
     glViewport(0, 0, width, height);
 
     //////// < Window Init end > ////////
-
-    int widthTex, heightTex, a;
-    unsigned char* image = stbi_load("Images/container.jpg", &widthTex, &heightTex, &a, STBI_rgb);
-
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthTex, heightTex, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(image);
-    glBindTexture(GL_TEXTURE_2D, 0);
 
     Shader testShader("VertShader.vert", "FragShader.frag");
 
@@ -99,6 +87,49 @@ int main()
     glEnableVertexAttribArray(2);
 
     glBindVertexArray(0);
+
+    //////// < Texture create > ////////
+    GLuint texture1;
+    glGenBuffers(1, &texture1);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int widthTex, heightTex;
+    unsigned char* image = stbi_load("Images/container.jpg", &widthTex, &heightTex, 0, STBI_rgb);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthTex, heightTex, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(image);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+
+    GLuint texture2;
+    glGenBuffers(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    image = stbi_load("Images/awesomeface.png", &widthTex, &heightTex, 0, STBI_rgb);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthTex, heightTex, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(image);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    //////// < Texture create end > ////////
     
 
     // Main loop
@@ -112,7 +143,14 @@ int main()
 
         testShader.Use();
 
-        glBindTexture(GL_TEXTURE_2D, texture);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture1);
+        glUniform1i(glGetUniformLocation(testShader.Program, "_texture1"), 0);
+
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, texture2);
+        glUniform1i(glGetUniformLocation(testShader.Program, "_texture2"), 1);
+
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
