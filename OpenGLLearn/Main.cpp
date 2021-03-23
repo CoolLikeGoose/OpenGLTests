@@ -10,6 +10,7 @@
 #include "Utility.h"
 #include "Shader.h"
 
+void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -41,6 +42,9 @@ int main()
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
+
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(MessageCallback, 0);
 
     //////// < Window Init end > ////////
 
@@ -90,11 +94,12 @@ int main()
 
     //////// < Texture create > ////////
     GLuint texture1;
-    glGenBuffers(1, &texture1);
+    //glGenBuffers(1, &_texture1);
+    glGenTextures(1, &texture1);
     glBindTexture(GL_TEXTURE_2D, texture1);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -110,27 +115,33 @@ int main()
     glBindTexture(GL_TEXTURE_2D, 0);
 
     GLuint texture2;
-    glGenBuffers(1, &texture2);
+    //glGenBuffers(1, &texture2);
+    glGenTextures(1, &texture2);
     glBindTexture(GL_TEXTURE_2D, texture2);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     image = stbi_load("Images/awesomeface.png", &widthTex, &heightTex, 0, STBI_rgb);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, widthTex, heightTex, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
 
-    //glGenerateMipmap(GL_TEXTURE_2D);
+    glGenerateMipmap(GL_TEXTURE_2D);
     stbi_image_free(image);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 
     //////// < Texture create end > ////////
+    /*GLenum error = glGetError();
+    while (error != GL_NO_ERROR)
+    {
+        cout << error << endl;
+        error = glGetError();
+    }*/
     
-
     // Main loop
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     while (!glfwWindowShouldClose(window))
@@ -171,3 +182,19 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
 }
+
+void GLAPIENTRY
+MessageCallback(GLenum source,
+    GLenum type,
+    GLuint id,
+    GLenum severity,
+    GLsizei length,
+    const GLchar* message,
+    const void* userParam)
+{
+    fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+        (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
+        type, severity, message);
+}
+
+// During init, enable debug output
