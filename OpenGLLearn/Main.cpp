@@ -8,9 +8,9 @@
 
 
 #include "Utility.h"
+#include "Debug.h"
 #include "Shader.h"
 
-void GLAPIENTRY MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -44,8 +44,7 @@ int main()
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
 
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(MessageCallback, 0);
+    EnableDebug();
 
     //////// < Window Init end > ////////
 
@@ -136,12 +135,6 @@ int main()
     glBindTexture(GL_TEXTURE_2D, 0);
 
     //////// < Texture create end > ////////
-    /*GLenum error = glGetError();
-    while (error != GL_NO_ERROR)
-    {
-        cout << error << endl;
-        error = glGetError();
-    }*/
     
     // Main loop
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -199,19 +192,3 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             mixValue = 0;
     }
 }
-
-void GLAPIENTRY
-MessageCallback(GLenum source,
-    GLenum type,
-    GLuint id,
-    GLenum severity,
-    GLsizei length,
-    const GLchar* message,
-    const void* userParam)
-{
-    fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
-        (type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
-        type, severity, message);
-}
-
-// During init, enable debug output
