@@ -23,3 +23,24 @@ void CheckProgramStatus(GLuint shaderProg)
         std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
     }
 }
+
+void ShowMatrix4(glm::mat4 matrix)
+{
+    float arr[16];
+
+    const float* source = (const float*)glm::value_ptr(matrix);
+
+    for (int i = 0; i < 16; i++)
+        arr[i] = source[i];
+
+    for (int x = 0; x < 4; x++)
+    {
+        std::cout << '[';
+        for (int y = 0; y < 3; y++)
+        {
+            std::cout << source[x * y] << '\t';
+        }
+        std::cout << source[x * 3];
+        std::cout << ']' << '\n' << std::endl;
+    }
+}

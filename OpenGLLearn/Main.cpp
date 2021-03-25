@@ -163,17 +163,14 @@ int main()
 
         glm::mat4 transform(1.0f);
 
-        transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+        transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 50, glm::vec3(0.0f, 0.0f, 1.0f));
         transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-
-        //cout << glm::to_string(transform) << endl;
 
         GLint transformLoc = glGetUniformLocation(testShader.Program, "transform");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-
         glBindVertexArray(0);
 
         // Swap the screen buffers
