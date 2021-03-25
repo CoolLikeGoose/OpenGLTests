@@ -6,6 +6,10 @@
 #include <GLFW/glfw3.h>
 #include <STB/stb_image.h>
 
+#include <GLM/glm.hpp>
+#include <GLM/gtc/matrix_transform.hpp>
+#include <GLM/gtc/type_ptr.hpp>
+#include <glm/gtx/string_cast.hpp>
 
 #include "Utility.h"
 #include "Debug.h"
@@ -135,7 +139,7 @@ int main()
     glBindTexture(GL_TEXTURE_2D, 0);
 
     //////// < Texture create end > ////////
-    
+
     // Main loop
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     while (!glfwWindowShouldClose(window))
@@ -156,6 +160,16 @@ int main()
         glUniform1i(glGetUniformLocation(testShader.Program, "_texture2"), 1);
 
         glUniform1f(glGetUniformLocation(testShader.Program, "mixValue"), mixValue);
+
+        glm::mat4 transform(1.0f);
+
+        transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 50.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+
+        //cout << glm::to_string(transform) << endl;
+
+        GLint transformLoc = glGetUniformLocation(testShader.Program, "transform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
