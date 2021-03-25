@@ -55,11 +55,11 @@ int main()
     Shader testShader("VertShader.vert", "FragShader.frag");
 
     GLfloat vertices[] = {
-        // Pos               // Color            // Tex coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   2.0f, 2.0f,   // Up right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   2.0f, 0.0f,   // Down right
+         // Pos               // Color            // Tex coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Up right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Down right
         -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Down left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 2.0f    // Up left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Up left
     };
 
     GLuint indices[] = {
@@ -139,6 +139,15 @@ int main()
     glBindTexture(GL_TEXTURE_2D, 0);
 
     //////// < Texture create end > ////////
+    
+    glm::mat4 model(1.0f);
+    model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+    glm::mat4 view(1.0f);
+    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+    glm::mat4 projection(1.0f);
+    projection = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 
     // Main loop
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -151,6 +160,7 @@ int main()
 
         testShader.Use();
 
+        // < Multi texturing > //
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
         glUniform1i(glGetUniformLocation(testShader.Program, "_texture1"), 0);
@@ -160,14 +170,17 @@ int main()
         glUniform1i(glGetUniformLocation(testShader.Program, "_texture2"), 1);
 
         glUniform1f(glGetUniformLocation(testShader.Program, "mixValue"), mixValue);
+        
+        // < Transform things > //
 
-        glm::mat4 transform(1.0f);
+        GLint modelLoc = glGetUniformLocation(testShader.Program, "model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-        transform = glm::rotate(transform, (GLfloat)glfwGetTime() * 50, glm::vec3(0.0f, 0.0f, 1.0f));
-        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
+        GLint viewLoc = glGetUniformLocation(testShader.Program, "view");
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 
-        GLint transformLoc = glGetUniformLocation(testShader.Program, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+        GLint projectionLoc = glGetUniformLocation(testShader.Program, "projection");
+        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

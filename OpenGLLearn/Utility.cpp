@@ -35,7 +35,7 @@ void ShowMatrix4(glm::mat4 matrix)
 
     for (int x = 0; x < 4; x++)
     {
-        std::cout << '[';
+        std::cout << '\n' << '[';
         for (int y = 0; y < 3; y++)
         {
             std::cout << source[x * y] << '\t';
