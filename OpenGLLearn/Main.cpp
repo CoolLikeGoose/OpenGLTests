@@ -112,6 +112,19 @@ int main()
         1, 2, 3
     };
 
+    glm::vec3 cubePositions[] = {
+        glm::vec3(0.0f,  0.0f,  0.0f),
+        glm::vec3(2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3(2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3(1.3f, -2.0f, -2.5f),
+        glm::vec3(1.5f,  2.0f, -2.5f),
+        glm::vec3(1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+    };
+
     //VAO, VBO init
     GLuint VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -181,15 +194,24 @@ int main()
 
     //////// < Texture create end > ////////
 
-    glm::mat4 model(1.0f);
-    //model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-    glm::mat4 view(1.0f);
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
+    //glm::mat4 view(1.0f);
+    //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
 
     glm::mat4 projection(1.0f);
     projection = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 
+    /*glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+    glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);*/
+
+    //glm::mat4 view(1.0f);
+    //view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
+    //                   glm::vec3(0.0f, 0.0f, 0.0f),
+    //                   glm::vec3(0.0f, 1.0f, 0.0f));
+    
     // Main loop
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     while (!glfwWindowShouldClose(window))
@@ -212,10 +234,18 @@ int main()
 
         glUniform1f(glGetUniformLocation(testShader.Program, "mixValue"), mixValue);
         
+        ///View
+        GLfloat radius = 10.0f;
+        GLfloat camX = sin(glfwGetTime()) * radius;
+        GLfloat camZ = cos(glfwGetTime()) * radius;
+
+        glm::mat4 view(1.0f);
+        view = glm::lookAt(glm::vec3(camX, 0, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
         // < Transform things > //
-        model = glm::rotate(model, (float)glm::radians(0.05f), glm::vec3(0.5f, 1.0f, 0.0f));
+        //model = glm::rotate(model, (float)glm::radians(0.05f), glm::vec3(0.5f, 1.0f, 0.0f));
         GLint modelLoc = glGetUniformLocation(testShader.Program, "model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
         GLint viewLoc = glGetUniformLocation(testShader.Program, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -224,8 +254,19 @@ int main()
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(VAO);
-        //glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        
+        for (GLuint i = 0; i < 10; i++)
+        {
+            // Calculate the model matrix for each object and pass it to shader before drawing
+            glm::mat4 model(1.0f);
+            model = glm::translate(model, cubePositions[i]);
+            GLfloat angle = 20.0f * i;
+            model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
         glBindVertexArray(0);
 
         // Swap the screen buffers
