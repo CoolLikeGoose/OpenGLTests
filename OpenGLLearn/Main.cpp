@@ -16,9 +16,16 @@
 #include "Shader.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void do_movement();
 
 const GLuint WIDTH = 800, HEIGHT = 600;
 float mixValue = 0.2f;
+bool keys[1024];
+GLfloat cameraSpeed = 0.05f;
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 
 int main()
 {
@@ -217,6 +224,7 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
+        do_movement();
 
         // Render
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -235,12 +243,12 @@ int main()
         glUniform1f(glGetUniformLocation(testShader.Program, "mixValue"), mixValue);
         
         ///View
-        GLfloat radius = 10.0f;
-        GLfloat camX = sin(glfwGetTime()) * radius;
-        GLfloat camZ = cos(glfwGetTime()) * radius;
-
+        //GLfloat radius = 10.0f;
+        //GLfloat camX = sin(glfwGetTime()) * radius;
+        //GLfloat camZ = cos(glfwGetTime()) * radius;
+        
         glm::mat4 view(1.0f);
-        view = glm::lookAt(glm::vec3(camX, 0, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         // < Transform things > //
         //model = glm::rotate(model, (float)glm::radians(0.05f), glm::vec3(0.5f, 1.0f, 0.0f));
@@ -280,22 +288,39 @@ int main()
     return 0;
 }
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+void do_movement()
 {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-
-    if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+    if (keys[GLFW_KEY_UP])
     {
         mixValue += 0.1f;
         if (mixValue > 1)
             mixValue = 1;
     }
 
-    if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+    if (keys[GLFW_KEY_DOWN])
     {
         mixValue -= 0.1f;
         if (mixValue < 0)
             mixValue = 0;
     }
+
+    if (keys[GLFW_KEY_W])
+        cameraPos += cameraSpeed * cameraFront;
+    if (keys[GLFW_KEY_S])
+        cameraPos -= cameraSpeed * cameraFront;
+    if (keys[GLFW_KEY_A])
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (keys[GLFW_KEY_D])
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+}
+
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+{
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, GL_TRUE);
+
+    if (action == GLFW_PRESS)
+        keys[key] = true;
+    else if (action == GLFW_RELEASE)
+        keys[key] = false;
 }
