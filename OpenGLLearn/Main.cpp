@@ -16,9 +16,16 @@
 #include "Shader.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void do_movement();
 
 const GLuint WIDTH = 800, HEIGHT = 600;
+
+GLfloat lastX = WIDTH / 2;
+GLfloat lastY = HEIGHT / 2;
+GLfloat yaw = -90.0f;
+GLfloat pitch = 0.0f;
+bool firstMouse = true;
 
 float mixValue = 0.2f;
 bool keys[1024];
@@ -46,7 +53,9 @@ int main()
     glfwMakeContextCurrent(window);
 
     // Set callback func
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     // Initialize GLEW 
     glewExperimental = GL_TRUE;
@@ -292,4 +301,38 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         keys[key] = true;
     else if (action == GLFW_RELEASE)
         keys[key] = false;
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    // TODO: rework this with glfwSetCursorPos 
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+
+    GLfloat xoffset = xpos - lastX;
+    lastX = xpos;
+    GLfloat yoffset = lastY - ypos;
+    lastY = ypos;
+
+    GLfloat sensivity = 0.05f;
+    xoffset *= sensivity;
+    yoffset *= sensivity;
+
+    yaw += xoffset;
+    pitch += yoffset;
+
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
 }
