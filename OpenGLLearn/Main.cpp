@@ -19,13 +19,16 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void do_movement();
 
 const GLuint WIDTH = 800, HEIGHT = 600;
+
 float mixValue = 0.2f;
 bool keys[1024];
-GLfloat cameraSpeed = 0.05f;
+
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+GLfloat deltaTime = 0.0f;
+GLfloat lastFrame = 0.0f;
 
 int main()
 {
@@ -61,14 +64,6 @@ int main()
     //////// < Window Init end > ////////
 
     Shader testShader("VertShader.vert", "FragShader.frag");
-
-    GLfloat verticesOld[] = {
-         // Pos               // Color            // Tex coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // Up right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // Down right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // Down left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // Up left
-    };
 
     float vertices[] = {
     -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -114,11 +109,6 @@ int main()
     -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
 
-    GLuint indices[] = {
-        0, 1, 3,
-        1, 2, 3
-    };
-
     glm::vec3 cubePositions[] = {
         glm::vec3(0.0f,  0.0f,  0.0f),
         glm::vec3(2.0f,  5.0f, -15.0f),
@@ -133,19 +123,15 @@ int main()
     };
 
     //VAO, VBO init
-    GLuint VBO, VAO, EBO;
+    GLuint VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
 
     //first
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     //coords
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
@@ -200,29 +186,15 @@ int main()
     glBindTexture(GL_TEXTURE_2D, 0);
 
     //////// < Texture create end > ////////
-
-    //glm::mat4 view(1.0f);
-    //view = glm::translate(view, glm::vec3(0.0f, 0.0f, -2.0f));
-
-    glm::mat4 projection(1.0f);
-    projection = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-
-    /*glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-    glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-    glm::vec3 cameraUp = glm::cross(cameraDirection, cameraRight);*/
-
-    //glm::mat4 view(1.0f);
-    //view = glm::lookAt(glm::vec3(0.0f, 0.0f, 3.0f),
-    //                   glm::vec3(0.0f, 0.0f, 0.0f),
-    //                   glm::vec3(0.0f, 1.0f, 0.0f));
     
     // Main loop
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     while (!glfwWindowShouldClose(window))
     {
+        GLfloat curFrame = glfwGetTime();
+        deltaTime = curFrame - lastFrame;
+        lastFrame = curFrame;
+
         glfwPollEvents();
         do_movement();
 
@@ -242,23 +214,18 @@ int main()
 
         glUniform1f(glGetUniformLocation(testShader.Program, "mixValue"), mixValue);
         
-        ///View
-        //GLfloat radius = 10.0f;
-        //GLfloat camX = sin(glfwGetTime()) * radius;
-        //GLfloat camZ = cos(glfwGetTime()) * radius;
-        
+        // Camera/View transformation
         glm::mat4 view(1.0f);
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
-        // < Transform things > //
-        //model = glm::rotate(model, (float)glm::radians(0.05f), glm::vec3(0.5f, 1.0f, 0.0f));
+        glm::mat4 projection(1.0f);
+        projection = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+
         GLint modelLoc = glGetUniformLocation(testShader.Program, "model");
-        //glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
         GLint viewLoc = glGetUniformLocation(testShader.Program, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
         GLint projectionLoc = glGetUniformLocation(testShader.Program, "projection");
+
+        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
         glBindVertexArray(VAO);
@@ -303,6 +270,8 @@ void do_movement()
         if (mixValue < 0)
             mixValue = 0;
     }
+
+    GLfloat cameraSpeed = 5.0f * deltaTime;
 
     if (keys[GLFW_KEY_W])
         cameraPos += cameraSpeed * cameraFront;
