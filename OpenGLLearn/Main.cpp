@@ -17,6 +17,7 @@
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void do_movement();
 
 const GLuint WIDTH = 800, HEIGHT = 600;
@@ -26,6 +27,7 @@ GLfloat lastY = HEIGHT / 2;
 GLfloat yaw = -90.0f;
 GLfloat pitch = 0.0f;
 bool firstMouse = true;
+GLfloat fov = 45.0f;
 
 float mixValue = 0.2f;
 bool keys[1024];
@@ -56,6 +58,7 @@ int main()
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     // Initialize GLEW 
     glewExperimental = GL_TRUE;
@@ -228,7 +231,7 @@ int main()
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         glm::mat4 projection(1.0f);
-        projection = glm::perspective(45.0f, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(fov, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 
         GLint modelLoc = glGetUniformLocation(testShader.Program, "model");
         GLint viewLoc = glGetUniformLocation(testShader.Program, "view");
@@ -335,4 +338,15 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     front.y = sin(glm::radians(pitch));
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(front);
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    if (fov >= 44.1f && fov <= 45.0f)
+        fov -= yoffset / 10;
+    if (fov <= 44.1f)
+        fov = 44.1f;
+    if (fov >= 45.0f)
+        fov = 45.0f;
+    std::cout << fov << std::endl;
 }
