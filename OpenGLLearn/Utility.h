@@ -12,3 +12,5 @@ void CheckShaderStatus(GLuint shader, std::string type);
 void CheckProgramStatus(GLuint shaderProg);
 
 void ShowMatrix4(glm::mat4 matrix);
+
+glm::mat4 LookAtRealization(glm::vec3 position, glm::vec3 target, glm::vec3 up);
