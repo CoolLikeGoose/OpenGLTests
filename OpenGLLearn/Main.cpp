@@ -14,6 +14,7 @@
 #include "Utility.h"
 #include "Debug.h"
 #include "Shader.h"
+#include "Camera.h"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -22,12 +23,11 @@ void do_movement();
 
 const GLuint WIDTH = 800, HEIGHT = 600;
 
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+
 GLfloat lastX = WIDTH / 2;
 GLfloat lastY = HEIGHT / 2;
-GLfloat yaw = -90.0f;
-GLfloat pitch = 0.0f;
 bool firstMouse = true;
-GLfloat fov = 45.0f;
 
 float mixValue = 0.2f;
 bool keys[1024];
@@ -227,11 +227,11 @@ int main()
         glUniform1f(glGetUniformLocation(testShader.Program, "mixValue"), mixValue);
         
         // Camera/View transformation
-        glm::mat4 view(1.0f);
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        glm::mat4 view;
+        view = camera.GetViewMatrix();
 
         glm::mat4 projection(1.0f);
-        projection = glm::perspective(fov, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+        projection = glm::perspective(camera.Zoom, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 
         GLint modelLoc = glGetUniformLocation(testShader.Program, "model");
         GLint viewLoc = glGetUniformLocation(testShader.Program, "view");
@@ -286,13 +286,13 @@ void do_movement()
     GLfloat cameraSpeed = 5.0f * deltaTime;
 
     if (keys[GLFW_KEY_W])
-        cameraPos += cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     if (keys[GLFW_KEY_S])
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (keys[GLFW_KEY_A])
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyboard(LEFT, deltaTime);
     if (keys[GLFW_KEY_D])
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.ProcessKeyboard(RIGHT, deltaTime);
 }
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
@@ -300,10 +300,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
 
-    if (action == GLFW_PRESS)
-        keys[key] = true;
-    else if (action == GLFW_RELEASE)
-        keys[key] = false;
+    if (key >= 0 && key < 1024)
+    {
+        if (action == GLFW_PRESS)
+            keys[key] = true;
+        else if (action == GLFW_RELEASE)
+            keys[key] = false;
+    }
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -321,32 +324,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     GLfloat yoffset = lastY - ypos;
     lastY = ypos;
 
-    GLfloat sensivity = 0.05f;
-    xoffset *= sensivity;
-    yoffset *= sensivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(front);
+    camera.ProcessMouseMovement(xoffset, yoffset);
 }
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    if (fov >= 44.1f && fov <= 45.0f)
-        fov -= yoffset / 10;
-    if (fov <= 44.1f)
-        fov = 44.1f;
-    if (fov >= 45.0f)
-        fov = 45.0f;
-    std::cout << fov << std::endl;
+    camera.ProcessMouseScroll(yoffset);
 }

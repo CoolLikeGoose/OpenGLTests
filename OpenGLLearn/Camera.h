@@ -1,6 +1,7 @@
 #pragma once
 
 //#include <vector>
+#include "Utility.h"
 
 #include <GL/glew.h>
 #include <GLM/glm.hpp>
@@ -16,7 +17,7 @@ enum CameraMovement {
 const GLfloat YAW = -90.0f;
 const GLfloat PITCH = 0.0f;
 const GLfloat SPEED = 3.0f;
-const GLfloat SENSITIVITY = 0.25f;
+const GLfloat SENSITIVITY = 0.1f;
 const GLfloat ZOOM = 45.0f;
 
 class Camera
@@ -41,7 +42,7 @@ public:
 		   GLfloat pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 	{
 		this->Position = position;
-		this->Up = up;
+		this->WorldUp = up;
 		this->Yaw = yaw;
 		this->Pitch = pitch;
 		this->updateCameraVectors();
@@ -52,7 +53,7 @@ public:
 		GLfloat yaw, GLfloat pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
 	{
 		this->Position = glm::vec3(posX, posY, posZ);
-		this->Up = glm::vec3(upX, upY, upZ);
+		this->WorldUp = glm::vec3(upX, upY, upZ);
 		this->Yaw = yaw;
 		this->Pitch = pitch;
 		this->updateCameraVectors();

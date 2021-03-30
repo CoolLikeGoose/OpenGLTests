@@ -58,5 +58,5 @@ void Camera::updateCameraVectors()
 	this->Front = glm::normalize(front);
 
 	this->Right = glm::normalize(glm::cross(this->Front, this->WorldUp));
-	this->Up = glm::normalize(glm::cross(this->Front, this->Right));
+	this->Up = glm::normalize(glm::cross(this->Right, this->Front));
 }
